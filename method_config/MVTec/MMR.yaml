@@ -1,0 +1,64 @@
+RNG_SEED: 54
+
+OUTPUT_DIR: './log_MMR_MVTec'
+
+
+DATASET:
+  name: 'mvtec'
+  resize: 256
+  imagesize: 224
+  subdatasets: ["bottle",
+                "cable",
+                "capsule",
+                "carpet",
+                "grid",
+                "hazelnut",
+                "leather",
+                "metal_nut",
+                "pill",
+                "screw",
+                "tile",
+                "toothbrush",
+                "transistor",
+                "wood",
+                "zipper"]
+
+TRAIN:
+  enable: True
+  save_model: False
+  method: 'MMR'
+  dataset_path: '/usr/sdd/zzl_data/MV_Tec'
+  backbone: 'wideresnet50'
+
+  MMR:
+    DA_low_limit: 0.7
+    DA_up_limit: 1.
+    layers_to_extract_from : ["layer1", "layer2", "layer3"]
+    feature_compression : False
+    scale_factors : (4.0, 2.0, 1.0)
+    FPN_output_dim : (256, 512, 1024)
+    load_pretrain_model : True
+    model_chkpt : "../low_level_anomaly_detection/mae_visualize_vit_base.pth"
+    finetune_mask_ratio : 0.4
+    test_mask_ratio : 0.
+
+
+TRAIN_SETUPS:
+  batch_size: 16
+  num_workers: 8
+  learning_rate: 0.001
+  epochs: 200
+  weight_decay: 0.05
+  warmup_epochs: 50
+
+TEST:
+  enable: False
+  save_segmentation_images: True
+  method: 'MMR'
+  dataset_path: '/usr/sdd/zzl_data/MV_Tec'
+
+  VISUALIZE:
+    Random_sample: False
+
+TEST_SETUPS:
+  batch_size: 32
