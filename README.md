@@ -4,7 +4,15 @@
   <img src=assets/image/mmr.png width="30%">
 </p>
 
-This is an official PyTorch implementation of the paper Industrial Anomaly Detection with Domain Shift: A Real-world Dataset and Masked Multi-scale Reconstruction.
+This is an official PyTorch implementation of the paper [Industrial Anomaly Detection with Domain Shift: A Real-world Dataset and Masked Multi-scale Reconstruction](https://arxiv.org/abs/2304.02216).
+```
+@article{zhang2023industrial,
+  title={Industrial Anomaly Detection with Domain Shift: A Real-world Dataset and Masked Multi-scale Reconstruction},
+  author={Zhang, Zilong and Zhao, Zhibin and Zhang, Xingwu and Sun, Chuang and Chen, Xuefeng},
+  journal={arXiv preprint arXiv:2304.02216},
+  year={2023}
+}
+```
 
 ### Datasets
 
