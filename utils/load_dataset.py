@@ -5,7 +5,10 @@ from enum import Enum
 
 LOGGER = logging.getLogger(__name__)
 
-_DATASETS = {"mvtec": ["datasets.mvtec", "MVTecDataset"]}
+_DATASETS = {"mvtec": ["datasets.mvtec", "MVTecDataset"],
+             "aebad_S": ["datasets.aebad_S", "AeBAD_SDataset"],
+             "aebad_V": ["datasets.aebad_V", "AeBAD_VDataset"]
+             }
 
 
 class DatasetSplit(Enum):

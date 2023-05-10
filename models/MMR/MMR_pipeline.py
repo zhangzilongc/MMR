@@ -1,5 +1,5 @@
 from .utils import ForwardHook, cal_anomaly_map, each_patch_loss_function, mmr_adjust_learning_rate
-from utils import compute_pixelwise_retrieval_metrics, compute_pro, save_image
+from utils import compute_pixelwise_retrieval_metrics, compute_pro, save_image, save_video_segmentations
 
 from scipy.ndimage import gaussian_filter
 from sklearn.metrics import roc_auc_score
@@ -159,6 +159,15 @@ class MMR_pipeline_:
                            ima_path=ima_path,
                            ima_name_list=ima_name_list,
                            individual_dataloader=test_dataloader)
+
+            if self.cfg.TEST.save_video_segmentation_images:
+                save_video_segmentations(cfg=self.cfg,
+                                         segmentations=masks_prediction,
+                                         scores=np.array(labels_prediction),
+                                         ima_path=ima_path,
+                                         ima_name_list=ima_name_list,
+                                         individual_dataloader=test_dataloader
+                                         )
 
         return auroc_samples, auroc_pixel, round(np.mean(aupro_list), 3)
 

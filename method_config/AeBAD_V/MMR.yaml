@@ -1,33 +1,20 @@
 RNG_SEED: 54
 
-OUTPUT_DIR: './log_MMR_MVTec'
+OUTPUT_DIR: './log_MMR_AeBAD_V'
 
 
 DATASET:
-  name: 'mvtec'
+  name: 'aebad_V'
   resize: 256
   imagesize: 224
-  subdatasets: ["bottle",
-                "cable",
-                "capsule",
-                "carpet",
-                "grid",
-                "hazelnut",
-                "leather",
-                "metal_nut",
-                "pill",
-                "screw",
-                "tile",
-                "toothbrush",
-                "transistor",
-                "wood",
-                "zipper"]
+  subdatasets: ["AeBAD_V"]
+  domain_shift_category: "same"
 
 TRAIN:
   enable: True
   save_model: False
   method: 'MMR'
-  dataset_path: '/usr/sdd/zzl_data/MV_Tec'
+  dataset_path: '/usr/sdd/zzl_data/AeBAD'
   backbone: 'wideresnet50'
 
   MMR:
@@ -53,12 +40,11 @@ TRAIN_SETUPS:
 
 TEST:
   enable: False
-  save_segmentation_images: True
+  save_segmentation_images: False
+  save_video_segmentation_images: True
   method: 'MMR'
-  dataset_path: '/usr/sdd/zzl_data/MV_Tec'
-
-  VISUALIZE:
-    Random_sample: True
+  dataset_path: '/usr/sdd/zzl_data/AeBAD'
+  pixel_mode_verify: False
 
 TEST_SETUPS:
   batch_size: 32

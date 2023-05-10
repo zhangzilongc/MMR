@@ -254,6 +254,57 @@ def save_image(cfg, segmentations: ndarray, masks_gt, ima_path, ima_name_list, i
     LOGGER.info("image save complete!")
 
 
+def save_video_segmentations(cfg, segmentations: ndarray, scores: ndarray, ima_path, ima_name_list,
+                             individual_dataloader):
+    save_fig_path = os.path.join(cfg.OUTPUT_DIR, "video_save")
+    os.makedirs(save_fig_path, exist_ok=True)
+
+    sample_num = len(segmentations)
+
+    # obtain the max segmentations
+    segmentations_max, segmentations_min = np.max(segmentations), np.min(segmentations)
+
+    sample_idx = [i for i in range(sample_num)]
+
+    segmentations_random_sample = [segmentations[idx_random] for idx_random in sample_idx]
+    scores = scores.tolist()
+    ima_path_random_sample = [ima_path[idx_random] for idx_random in sample_idx]
+    ima_name_random_sample = [ima_name_list[idx_random] for idx_random in sample_idx]
+
+    temp_individual_name = os.path.join(save_fig_path, individual_dataloader.name)
+    os.makedirs(temp_individual_name, exist_ok=True)
+
+    for seg_each, score_each, ori_path_each, name_each in zip(segmentations_random_sample,
+                                                              scores,
+                                                              ima_path_random_sample,
+                                                              ima_name_random_sample):
+        anomaly_type = name_each.split("/")[1]
+        temp_anomaly_name = os.path.join(temp_individual_name, anomaly_type)
+        os.makedirs(temp_anomaly_name, exist_ok=True)
+        file_name = name_each.replace("/", "_").split(".")[0]
+
+        original_ima = individual_dataloader.dataset.transform_mask(default_loader(ori_path_each))
+        original_ima = (original_ima.numpy() * 255).astype(np.uint8).transpose(1, 2, 0)
+        original_ima = cv2.cvtColor(original_ima, cv2.COLOR_BGR2RGB)
+
+        seg_each = (seg_each - segmentations_min) / (segmentations_max - segmentations_min)
+
+        seg_each = np.clip(seg_each * 255, 0, 255).astype(np.uint8)
+        heatmap = cv2.applyColorMap(seg_each, cv2.COLORMAP_JET)
+
+        if heatmap.shape != original_ima.shape:
+            raise Exception("ima shape is not consistent!")
+
+        heatmap_on_image = np.float32(heatmap) / 255 + np.float32(original_ima) / 255
+        heatmap_on_image = heatmap_on_image / np.max(heatmap_on_image)
+        heatmap_on_image = np.uint8(255 * heatmap_on_image)
+
+        str_score_each = str(score_each).replace(".", "_")
+
+        cv2.imwrite(os.path.join(temp_anomaly_name, f'{file_name}_heatmap_{str_score_each}.jpg'), heatmap_on_image)
+    LOGGER.info("image save complete!")
+
+
 def cv2_ima_save(dir_path, file_name, ori_ima, mask_ima, heat_ima, heat_on_ima):
     cv2.imwrite(os.path.join(dir_path, f'{file_name}_original.jpg'), ori_ima)
     cv2.imwrite(os.path.join(dir_path, f'{file_name}_mask.jpg'), mask_ima)

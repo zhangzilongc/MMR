@@ -34,6 +34,7 @@ _C.DATASET.subdatasets = ["bottle",
 _C.DATASET.resize = 256
 # final image shape
 _C.DATASET.imagesize = 224
+_C.DATASET.domain_shift_category = "same"
 
 _C.TRAIN = CfgNode()
 _C.TRAIN.enable = True
