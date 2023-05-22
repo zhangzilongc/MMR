@@ -93,14 +93,16 @@ class MMR_(nn.Module):
                  mlp_ratio=4., norm_layer=nn.LayerNorm,
                  cfg=None, scale_factors=(4.0, 2.0, 1.0), FPN_output_dim=(256, 512, 1024)):
         super().__init__()
-
+        img_size = cfg.DATASET.imagesize
+        pretrain_image_size = 224
+        self.pretrain_num_patches = (pretrain_image_size // patch_size) * (pretrain_image_size // patch_size)
         # --------------------------------------------------------------------------
         # MAE encoder specifics
         self.patch_embed = PatchEmbed(img_size, patch_size, in_chans, embed_dim)
         num_patches = self.patch_embed.num_patches
 
         self.cls_token = nn.Parameter(torch.zeros(1, 1, embed_dim))
-        self.pos_embed = nn.Parameter(torch.zeros(1, num_patches + 1, embed_dim),
+        self.pos_embed = nn.Parameter(torch.zeros(1, self.pretrain_num_patches + 1, embed_dim),
                                       requires_grad=False)  # fixed sin-cos embedding
 
         self.blocks = nn.ModuleList([
@@ -177,7 +179,7 @@ class MMR_(nn.Module):
 
     def initialize_weights(self):
         # initialization
-        pos_embed = get_2d_sincos_pos_embed(self.pos_embed.shape[-1], int(self.patch_embed.num_patches ** .5),
+        pos_embed = get_2d_sincos_pos_embed(self.pos_embed.shape[-1], int(self.pretrain_num_patches ** .5),
                                             cls_token=True)
         self.pos_embed.data.copy_(torch.from_numpy(pos_embed).float().unsqueeze(0))
 
@@ -237,7 +239,11 @@ class MMR_(nn.Module):
         x = self.patch_embed(x)
 
         # add pos embed w/o cls token
-        x = x + self.pos_embed[:, 1:, :]
+        if self.patch_embed.num_patches != self.pretrain_num_patches:
+            hw = (int(math.sqrt(x.shape[1])), int(math.sqrt(x.shape[1])))
+            x = x + get_abs_pos(self.pos_embed[:, 1:, :], hw)
+        else:
+            x = x + self.pos_embed[:, 1:, :]
 
         # masking: length -> length * mask_ratio
         x, mask, ids_restore = self.random_masking(x, mask_ratio, ids_shuffle=ids_shuffle)
@@ -285,4 +291,32 @@ def MMR_base(**kwargs):
         patch_size=16, embed_dim=768, depth=12, num_heads=12,
         mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     return model
+
+
+def get_abs_pos(abs_pos, hw):
+    """
+    Calculate absolute positional embeddings. If needed, resize embeddings and remove cls_token
+        dimension for the original embeddings.
+    Args:
+        abs_pos (Tensor): absolute positional embeddings with (1, num_position, C).
+        has_cls_token (bool): If true, has 1 embedding in abs_pos for cls token.
+        hw (Tuple): size of input image tokens.
+
+    Returns:
+        Absolute positional embeddings after processing with shape (1, H, W, C)
+    """
+    h, w = hw
+
+    xy_num = abs_pos.shape[1]
+    size = int(math.sqrt(xy_num))
+    assert size * size == xy_num
+
+    new_abs_pos = F.interpolate(
+        abs_pos.reshape(1, size, size, -1).permute(0, 3, 1, 2),
+        size=(h, w),
+        mode="bicubic",
+        align_corners=False,
+    )
+
+    return new_abs_pos.permute(0, 2, 3, 1).reshape(1, int(h * w), -1)
 

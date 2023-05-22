@@ -56,7 +56,7 @@ class MVTecDataset(torch.utils.data.Dataset):
 
         # for test
         self.transform_img = [
-            transforms.Resize(resize),
+            transforms.Resize((resize, resize)),
             transforms.CenterCrop(imagesize),
             transforms.ToTensor()
         ]
@@ -75,7 +75,7 @@ class MVTecDataset(torch.utils.data.Dataset):
             transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)])
 
         transform_mask = [
-            transforms.Resize(resize),
+            transforms.Resize((resize, resize)),
             transforms.CenterCrop(imagesize),
             transforms.ToTensor(),
         ]
