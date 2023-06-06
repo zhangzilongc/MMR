@@ -22,9 +22,7 @@ class AeBAD_VDataset(MVTecDataset):
                         crucial_word = "*/*.jpg"
                         anomaly_files = glob(os.path.join(anomaly_path, crucial_word))
 
-                        imgpaths_per_class[classname][anomaly] = [
-                            os.path.join(anomaly_path, x) for x in anomaly_files
-                        ]
+                        imgpaths_per_class[classname][anomaly] = anomaly_files
             else:
                 video_types = [self.cfg.DATASET.domain_shift_category]
 
@@ -39,9 +37,7 @@ class AeBAD_VDataset(MVTecDataset):
                                 crucial_word = "*.jpg"
                                 anomaly_files = glob(os.path.join(anomaly_path, crucial_word))
 
-                                imgpaths_per_class[classname][anomaly] = [
-                                    os.path.join(anomaly_path, x) for x in anomaly_files
-                                ]
+                                imgpaths_per_class[classname][anomaly] = anomaly_files
 
         # Unrolls the data dictionary to an easy-to-iterate list.
         data_to_iterate = []
