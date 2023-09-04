@@ -262,6 +262,9 @@ Set Test.save_segmentation_images as True or False to save processed image.
 
 **Note that for AeBAD-V, we only evaluate the sample-level metric. The pixel-level metric is 0.**
 
+## Acknowledgement
+We acknowledge the excellent implementation from [MAE](https://github.com/facebookresearch/mae), [ViTDet](https://github.com/facebookresearch/detectron2/tree/main/projects/ViTDet).
+
 
 
 
