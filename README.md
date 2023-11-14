@@ -265,6 +265,7 @@ Set Test.save_segmentation_images as True or False to save processed image.
 ## Acknowledgement
 We acknowledge the excellent implementation from [MAE](https://github.com/facebookresearch/mae), [ViTDet](https://github.com/facebookresearch/detectron2/tree/main/projects/ViTDet).
 
-
+## License
+The data is released under the CC BY 4.0 license.
 
 
